@@ -4,6 +4,15 @@
           [java.net InetSocketAddress HttpURLConnection]
           [java.io IOException FilterOutputStream]))
 
+(defn default-handler
+  [txt]
+  (proxy [HttpHandler] []
+    (handle [exchange]
+      (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK 0)
+      (doto (.getResponseBody exchange)
+        (.write (.getBytes txt))
+        (.close)))))
+
 (defn new-server
   [port path handler]
   (doto (HttpServer/create (InetSocketAddress. port) 0)
