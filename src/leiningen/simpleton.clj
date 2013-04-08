@@ -14,14 +14,17 @@
             (println "Shutting down Simpleton...")
             (deliver mailbox "Bye"))))
 
+(defn respond [exchange body]
+  (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK 0)
+  (doto (.getResponseBody exchange)
+    (.write (.getBytes body))
+    (.close)))
+
 (defn default-handler
   [txt]
   (proxy [HttpHandler] []
     (handle [exchange]
-      (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK 0)
-      (doto (.getResponseBody exchange)
-        (.write (.getBytes txt))
-        (.close)))))
+      (respond exchange txt))))
 
 (defn new-server
   [port path handler]
