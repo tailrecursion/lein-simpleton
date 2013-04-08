@@ -26,6 +26,14 @@
     (handle [exchange]
       (respond exchange txt))))
 
+(defn echo-handler
+  []
+  (proxy [HttpHandler] []
+    (handle [exchange]
+      (let [headers (.getRequestHeaders exchange)
+            entries (into #{} (.entrySet headers))]
+        (respond exchange (prn-str entries))))))
+
 (defn new-server
   [port path handler]
   (doto (HttpServer/create (InetSocketAddress. port) 0)
@@ -37,6 +45,7 @@
   "I don't do a lot."
   [project & [port :as args]]
   (println "Starting server on port " port)
-  (new-server 8080 "/" (default-handler message))
+  ;;  (new-server 8080 "/" (default-handler message))
+  (new-server 8080 "/" (echo-handler))
   (println @mailbox))
 
