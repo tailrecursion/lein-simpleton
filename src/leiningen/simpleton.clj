@@ -4,6 +4,13 @@
           [java.net InetSocketAddress HttpURLConnection]
           [java.io IOException FilterOutputStream]))
 
+(defn new-server
+  [port path handler]
+  (doto (HttpServer/create (InetSocketAddress. port) 0)
+    (.createContext path handler)
+    (.setExecutor nil)
+    (.start)))
+
 (.addShutdownHook
  (Runtime/getRuntime)
  (Thread. #(println "Shutting down Simpleton...")))
