@@ -38,13 +38,17 @@
   [things]
   (prn-str things))
 
+(defn listing [file]
+  (-> file .list seq sort))
+
 (defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
-      (.add (.getResponseHeaders exchange)
-            "Content-Type"
-            "text/html")
-      (respond exchange (html "<b>foo</b>")))))
+      (let [f (File. ".")]
+        (.add (.getResponseHeaders exchange)
+              "Content-Type"
+              "text/html")
+        (respond exchange (html (listing f)))))))
 
 (defn new-server
   [port path handler]
