@@ -49,7 +49,7 @@
 (defn simpleton
   "I don't do a lot."
   [project & [port :as args]]
-  (println "Starting server on port " port)
+  (println "Starting server on port" port)
   ;;  (new-server 8080 "/" (default-handler message))
   ;; (new-server 8080 "/" (echo-handler))
   (new-server 8080 "/" (fs-handler port))
