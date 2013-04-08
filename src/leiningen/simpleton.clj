@@ -36,7 +36,16 @@
 
 (defn html
   [things]
-  (prn-str things))
+  (apply str
+         (concat
+          ["<html><head></head><body>"]
+          (for [f things]
+            (str "<a href='"
+                 f
+                 "'>"
+                 f
+                 "</a><br>"))
+          ["</body></html>"])))
 
 (defn listing [file]
   (-> file .list seq sort))
