@@ -34,10 +34,10 @@
                                  [k (vec v)]))]
         (respond exchange (prn-str entry-map))))))
 
-(defn fs-handler [preamble]
+(defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
-      (respond exchange (pr-str preamble)))))
+      (respond exchange "foo"))))
 
 (defn new-server
   [port path handler]
@@ -52,6 +52,6 @@
   (println "Starting server on port" port)
   ;;  (new-server 8080 "/" (default-handler message))
   ;; (new-server 8080 "/" (echo-handler))
-  (new-server 8080 "/" (fs-handler port))
+  (new-server 8080 "/" (fs-handler))
   (println @mailbox))
 
