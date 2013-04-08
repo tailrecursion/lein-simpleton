@@ -34,10 +34,17 @@
                                  [k (vec v)]))]
         (respond exchange (prn-str entry-map))))))
 
+(defn html
+  [things]
+  (prn-str things))
+
 (defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
-      (respond exchange "foo"))))
+      (.add (.getResponseHeaders exchange)
+            "Content-Type"
+            "text/html")
+      (respond exchange (html "<b>foo</b>")))))
 
 (defn new-server
   [port path handler]
