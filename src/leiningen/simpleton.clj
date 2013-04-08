@@ -31,8 +31,9 @@
   (proxy [HttpHandler] []
     (handle [exchange]
       (let [headers (.getRequestHeaders exchange)
-            entries (into #{} (.entrySet headers))]
-        (respond exchange (prn-str entries))))))
+            entry-map (into {} (for [[k v] (.entrySet headers)]
+                                 [k (vec v)]))]
+        (respond exchange (prn-str entry-map))))))
 
 (defn new-server
   [port path handler]
