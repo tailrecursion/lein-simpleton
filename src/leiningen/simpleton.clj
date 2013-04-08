@@ -5,6 +5,14 @@
           [java.io IOException FilterOutputStream]))
 
 (def message "If it was so, it might be; and if it were so, it would be; but as it isn't, it ain't.")
+(def mailbox (promise))
+
+(.addShutdownHook
+ (Runtime/getRuntime)
+ (Thread. (fn []
+            (println)
+            (println "Shutting down Simpleton...")
+            (deliver mailbox "Bye"))))
 
 (defn default-handler
   [txt]
@@ -22,14 +30,10 @@
     (.setExecutor nil)
     (.start)))
 
-(.addShutdownHook
- (Runtime/getRuntime)
- (Thread. #(println "Shutting down Simpleton...")))
-
 (defn simpleton
   "I don't do a lot."
   [project & [port :as args]]
   (println "Starting server on port " port)
   (new-server 8080 "/" (default-handler message))
-  @(promise))
+  (println @mailbox))
 
