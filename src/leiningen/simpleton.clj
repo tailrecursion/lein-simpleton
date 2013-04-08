@@ -26,14 +26,18 @@
     (handle [exchange]
       (respond exchange txt))))
 
-(defn echo-handler
-  []
+(defn echo-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
       (let [headers (.getRequestHeaders exchange)
             entry-map (into {} (for [[k v] (.entrySet headers)]
                                  [k (vec v)]))]
         (respond exchange (prn-str entry-map))))))
+
+(defn fs-handler [preamble]
+  (proxy [HttpHandler] []
+    (handle [exchange]
+      (respond exchange (pr-str preamble)))))
 
 (defn new-server
   [port path handler]
@@ -47,6 +51,7 @@
   [project & [port :as args]]
   (println "Starting server on port " port)
   ;;  (new-server 8080 "/" (default-handler message))
-  (new-server 8080 "/" (echo-handler))
+  ;; (new-server 8080 "/" (echo-handler))
+  (new-server 8080 "/" (fs-handler port))
   (println @mailbox))
 
