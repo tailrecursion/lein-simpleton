@@ -4,6 +4,8 @@
           [java.net InetSocketAddress HttpURLConnection]
           [java.io IOException FilterOutputStream]))
 
+(def message "If it was so, it might be; and if it were so, it would be; but as it isn't, it ain't.")
+
 (defn default-handler
   [txt]
   (proxy [HttpHandler] []
@@ -28,6 +30,6 @@
   "I don't do a lot."
   [project & [port :as args]]
   (println "Starting server on port " port)
-  (new-server 8080 "/joy/hello" (default-handler "Hello Cleveland"))
+  (new-server 8080 "/" (default-handler message))
   @(promise))
 
