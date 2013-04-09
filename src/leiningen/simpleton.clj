@@ -109,9 +109,9 @@
           type (second args)]
       (println (str "Starting " (if type type "file") " server on port " port))
       (case type
-        "hello" (new-server 8080 "/" (default-handler message))
-        "echo" (new-server 8080 "/" (echo-handler))
-        (new-server 8080 "/" (fs-handler))))
+        "hello" (new-server port "/" (default-handler message))
+        "echo" (new-server port "/" (echo-handler))
+        (new-server port "/" (fs-handler))))
     (println @mailbox)
     (catch NumberFormatException nfe
       (println "Malformed port" port)
