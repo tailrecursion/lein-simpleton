@@ -82,7 +82,6 @@
 (defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
-      (println "zzz")
       (let [uri (str (.getRequestURI exchange))
             f (File. (str "." uri))
             filenames (listing f)]
@@ -104,7 +103,6 @@
     (.start)))
 
 (defn simpleton
-  "I don't do a lot."
   [project & [port :as args]]
   (try
     (let [port (Integer/parseInt port)
