@@ -54,14 +54,17 @@
 (defn listing [file]
   (-> file .list sort))
 
-(def )
+(def mime-types
+  {"jpg" "image/jpeg"})
 
 (defn serve [exchange file]
-  (.add (.getResponseHeaders exchange)
-        "Content-Type"
-        "text/plain")
   (let [out (byte-array (.length file))
-        stream (java.io.BufferedInputStream. (java.io.FileInputStream. file))]
+        stream (java.io.BufferedInputStream. (java.io.FileInputStream. file))
+        filename (.getName file)
+        ext (.substring filename (+ 1 (.lastIndexOf filename ".")))]
+    (.add (.getResponseHeaders exchange)
+        "Content-Type"
+        (get mime-types ext "text/plain"))
     (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))
     (.read stream out 0 (alength out))
     (.write (.getResponseBody exchange)
