@@ -17,25 +17,29 @@ Put `[lein-simpleton "1.0.0"]` into the `:plugins` vector of your project.clj.
 
 By default Simpleton provides a file-server in the directory where it's run.  To run:
 
-    $ lein simpleton <port>
+    $ lein simpleton 5000
 
-Navigate to `localhost:<port>` and see a directory listing.  Click around to navigate directories and download (some) files.
+Navigate to <http://localhost:5000> and see a directory listing.  Click around to navigate directories and download (some) files.
 
 #### Running the echo server
 
 Simpleton can also run an echo server that reflects the incomming HTTP headers back as [EDN](https://github.com/edn-format/edn) data.
 
-    $ lein simpleton <port> echo
+    $ lein simpleton 5000 echo
 
-Navigating to `localhost:<port>` to download an EDN file.
+Navigate to <http://localhost:5000>` to download an EDN file.
 
 ### Running the hello server
 
 Simpleton can also run a "Hello" server that just returns a canned text string.
 
-    $ lein simpleton <port> hello
+    $ lein simpleton 5000 hello
 
-Navigating to `localhost:<port>` to see the message.
+Navigating to <http://localhost:5000> to see the message.
+
+## Contributing
+
+Patches and pushes welcomed.  Please see the [lein-simpleton tickets page](https://github.com/fogus/lein-simpleton/issues) to see if there's something that you like added, or add it, hack and push away.
 
 ## License
 
