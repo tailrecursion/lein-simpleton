@@ -7,6 +7,7 @@
 
 (def message "If it was so, it might be; and if it were so, it would be; but as it isn't, it ain't.")
 (def mailbox (promise))
+(def | File/separator)
 
 (.addShutdownHook
  (Runtime/getRuntime)
@@ -38,13 +39,13 @@
         (respond exchange (prn-str headers))))))
 
 (defn html
-  [things]
+  [root things]
   (apply str
          (concat
           ["<html><head></head><body>"]
           (for [f things]
             (str "<a href='"
-                 f
+                 (str root (if (= "/" root) "" File/separator) f)
                  "'>"
                  f
                  "</a><br>"))
@@ -53,15 +54,23 @@
 (defn listing [file]
   (-> file .list sort))
 
+(defn serve [file]
+  (.add (.getResponseHeaders exchange)
+        "Content-Type"
+        "text/html"))
+
 (defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
       (let [uri (str (.getRequestURI exchange))
-            f (File. (str "." uri))]
-        (.add (.getResponseHeaders exchange)
-              "Content-Type"
-              "text/html")
-        (respond exchange (html (listing f)))))))
+            f (File. (str "." uri))
+            filenames (listing f)]
+        (if (.isDirectory f)
+          (do (.add (.getResponseHeaders exchange)
+                    "Content-Type"
+                    "text/html")
+              (respond exchange (html uri filenames)))
+          (serve f))))))
 
 (defn new-server
   [port path handler]
