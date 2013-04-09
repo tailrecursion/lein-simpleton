@@ -1,5 +1,6 @@
 (ns leiningen.simpleton
-  (import [java.io File]
+  (:require [clojure.java.io :as io])
+  (:import [java.io File]
           [com.sun.net.httpserver HttpHandler HttpExchange HttpServer]
           [java.net InetSocketAddress HttpURLConnection]
           [java.io IOException FilterOutputStream]))
@@ -55,6 +56,7 @@
 (defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
+      (println (str (.getRequestURI exchange)))
       (let [f (File. ".")]
         (.add (.getResponseHeaders exchange)
               "Content-Type"
@@ -73,7 +75,7 @@
   [project & [port :as args]]
   (println "Starting server on port" port)
   ;;  (new-server 8080 "/" (default-handler message))
-  (new-server 8080 "/" (echo-handler))
-  ;;(new-server 8080 "/" (fs-handler))
+  ;;(new-server 8080 "/" (echo-handler))
+  (new-server 8080 "/" (fs-handler))
   (println @mailbox))
 
