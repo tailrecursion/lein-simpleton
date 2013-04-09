@@ -54,10 +54,16 @@
 (defn listing [file]
   (-> file .list sort))
 
-(defn serve [file]
+(defn serve [exchange file]
   (.add (.getResponseHeaders exchange)
         "Content-Type"
-        "text/html"))
+        "text/plain")
+  (let [out (byte-array (.length file))
+        stream (java.io.BufferedInputStream. (java.io.FileInputStream. file))]
+    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))
+    (.read stream out 0 (alength out))
+    (.write (.getResponseBody exchange)
+            out 0 (alength out))))
 
 (defn fs-handler []
   (proxy [HttpHandler] []
@@ -70,7 +76,10 @@
                     "Content-Type"
                     "text/html")
               (respond exchange (html uri filenames)))
-          (serve f))))))
+          (try
+            (serve exchange f)
+            (catch Exception e
+              (println (.getMessage e)))))))))
 
 (defn new-server
   [port path handler]
