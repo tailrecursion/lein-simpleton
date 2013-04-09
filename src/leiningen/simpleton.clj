@@ -7,7 +7,14 @@
 
 (def message "If it was so, it might be; and if it were so, it would be; but as it isn't, it ain't.")
 (def mailbox (promise))
-(def | File/separator)
+
+(def mime-types
+  (atom {"jpg"  "image/jpeg"
+         "gif"  "image/gif"
+         "png"  "image/png"
+         "html" "text/html"
+         "htm"  "text/html"
+         "css"  "text/css"}))
 
 (.addShutdownHook
  (Runtime/getRuntime)
@@ -54,9 +61,6 @@
 (defn listing [file]
   (-> file .list sort))
 
-(def mime-types
-  {"jpg" "image/jpeg"})
-
 (defn serve [exchange file]
   (let [out (byte-array (.length file))
         stream (java.io.BufferedInputStream. (java.io.FileInputStream. file))
@@ -64,7 +68,7 @@
         ext (.substring filename (+ 1 (.lastIndexOf filename ".")))]
     (.add (.getResponseHeaders exchange)
         "Content-Type"
-        (get mime-types ext "text/plain"))
+        (get @mime-types ext "text/plain"))
     (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))
     (.read stream out 0 (alength out))
     (.write (.getResponseBody exchange)
@@ -79,7 +83,7 @@
         (if (.isDirectory f)
           (do (.add (.getResponseHeaders exchange)
                     "Content-Type"
-                    "text/html")
+                    (get @mime-types "html"))
               (respond exchange (html uri filenames)))
           (try
             (serve exchange f)
