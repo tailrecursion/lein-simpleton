@@ -105,9 +105,15 @@
 (defn simpleton
   "I don't do a lot."
   [project & [port :as args]]
-  (println "Starting server on port" port)
-  ;;  (new-server 8080 "/" (default-handler message))
-  ;;(new-server 8080 "/" (echo-handler))
-  (new-server 8080 "/" (fs-handler))
-  (println @mailbox))
+  (try
+    (let [port (Integer/parseInt port)]
+      (println "Starting server on port" port)
+      (case (second args)
+        "hello" (new-server 8080 "/" (default-handler message))
+        "echo" (new-server 8080 "/" (echo-handler))
+        (new-server 8080 "/" (fs-handler))))
+    (println @mailbox)
+    (catch NumberFormatException nfe
+      (println "Malformed port" port)
+      (println "Usage: lein simpleton <port> [server-type]"))))
 
