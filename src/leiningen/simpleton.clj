@@ -44,6 +44,8 @@
   (proxy [HttpHandler] []
     (handle [exchange]
       (let [headers (mapify-headers (.getRequestHeaders exchange))]
+        (.add (.getResponseHeaders exchange)
+              "Content-Type" "application/edn")
         (respond exchange (prn-str headers))))))
 
 (defn html
