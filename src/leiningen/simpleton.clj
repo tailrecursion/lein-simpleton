@@ -26,13 +26,15 @@
     (handle [exchange]
       (respond exchange txt))))
 
+(defn mapify-headers [hmap]
+  (into {} (for [[k v] (.entrySet hmap)]
+             [k (vec v)])))
+
 (defn echo-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
-      (let [headers (.getRequestHeaders exchange)
-            entry-map (into {} (for [[k v] (.entrySet headers)]
-                                 [k (vec v)]))]
-        (respond exchange (prn-str entry-map))))))
+      (let [headers (mapify-headers (.getRequestHeaders exchange))]
+        (respond exchange (prn-str headers))))))
 
 (defn html
   [things]
@@ -48,7 +50,7 @@
           ["</body></html>"])))
 
 (defn listing [file]
-  (-> file .list seq sort))
+  (-> file .list sort))
 
 (defn fs-handler []
   (proxy [HttpHandler] []
@@ -71,7 +73,7 @@
   [project & [port :as args]]
   (println "Starting server on port" port)
   ;;  (new-server 8080 "/" (default-handler message))
-  ;; (new-server 8080 "/" (echo-handler))
-  (new-server 8080 "/" (fs-handler))
+  (new-server 8080 "/" (echo-handler))
+  ;;(new-server 8080 "/" (fs-handler))
   (println @mailbox))
 
