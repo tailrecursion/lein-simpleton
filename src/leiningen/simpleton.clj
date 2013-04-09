@@ -3,7 +3,8 @@
   (:import [java.io File]
           [com.sun.net.httpserver HttpHandler HttpExchange HttpServer]
           [java.net InetSocketAddress HttpURLConnection]
-          [java.io IOException FilterOutputStream]))
+          [java.io IOException FilterOutputStream
+                   BufferedInputStream FileInputStream]))
 
 (def message "If it was so, it might be; and if it were so, it would be; but as it isn't, it ain't.")
 (def mailbox (promise))
@@ -54,23 +55,27 @@
             (str "<a href='"
                  (str root (if (= "/" root) "" File/separator) f)
                  "'>"
-                 f
-                 "</a><br>"))
+                 f "</a><br>"))
           ["</body></html>"])))
 
 (defn listing [file]
   (-> file .list sort))
 
-(defn serve [exchange file]
-  (let [out (byte-array (.length file))
-        stream (java.io.BufferedInputStream. (java.io.FileInputStream. file))
-        filename (.getName file)
-        ext (.substring filename (+ 1 (.lastIndexOf filename ".")))]
-    (.add (.getResponseHeaders exchange)
-        "Content-Type"
-        (get @mime-types ext "text/plain"))
-    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))
+(defn get-extension [filename]
+  (.substring filename (+ 1 (.lastIndexOf filename "."))))
+
+(defn read-bytes [file]
+  (let [out    (byte-array (.length file))
+        stream (BufferedInputStream. (FileInputStream. file))]
     (.read stream out 0 (alength out))
+    out))
+
+(defn serve [exchange file]
+  (let [out (read-bytes file) 
+        ext (get-extension (.getName file))]
+    (.add (.getResponseHeaders exchange)
+          "Content-Type" (get @mime-types ext "text/plain"))
+    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))    
     (.write (.getResponseBody exchange)
             out 0 (alength out))))
 
