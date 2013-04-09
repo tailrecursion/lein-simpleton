@@ -104,7 +104,7 @@
     (.setExecutor nil)
     (.start)))
 
-(defn simpleton
+(defn ^:no-project-needed simpleton
   [project & [port :as args]]
   (try
     (let [port (Integer/parseInt port)
