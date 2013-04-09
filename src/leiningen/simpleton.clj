@@ -10,12 +10,12 @@
 (def mailbox (promise))
 
 (def mime-types
-  (atom {"jpg"  "image/jpeg"
-         "gif"  "image/gif"
-         "png"  "image/png"
-         "html" "text/html"
-         "htm"  "text/html"
-         "css"  "text/css"}))
+  {"jpg"  "image/jpeg"
+   "gif"  "image/gif"
+   "png"  "image/png"
+   "html" "text/html"
+   "htm"  "text/html"
+   "css"  "text/css"})
 
 (.addShutdownHook
  (Runtime/getRuntime)
@@ -74,21 +74,22 @@
   (let [out (read-bytes file) 
         ext (get-extension (.getName file))]
     (.add (.getResponseHeaders exchange)
-          "Content-Type" (get @mime-types ext "text/plain"))
-    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))    
-    (.write (.getResponseBody exchange)
-            out 0 (alength out))))
+          "Content-Type" (get mime-types ext "text/plain"))
+    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))
+    (with-open [resp (.getResponseBody exchange)]
+      (.write resp out 0 (alength out)))))
 
 (defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
+      (println "zzz")
       (let [uri (str (.getRequestURI exchange))
             f (File. (str "." uri))
             filenames (listing f)]
         (if (.isDirectory f)
           (do (.add (.getResponseHeaders exchange)
                     "Content-Type"
-                    (get @mime-types "html"))
+                    (get mime-types "html"))
               (respond exchange (html uri filenames)))
           (try
             (serve exchange f)
@@ -106,9 +107,10 @@
   "I don't do a lot."
   [project & [port :as args]]
   (try
-    (let [port (Integer/parseInt port)]
-      (println "Starting server on port" port)
-      (case (second args)
+    (let [port (Integer/parseInt port)
+          type (second args)]
+      (println (str "Starting " (if type type "file") " server on port " port))
+      (case type
         "hello" (new-server 8080 "/" (default-handler message))
         "echo" (new-server 8080 "/" (echo-handler))
         (new-server 8080 "/" (fs-handler))))
