@@ -56,8 +56,8 @@
 (defn fs-handler []
   (proxy [HttpHandler] []
     (handle [exchange]
-      (println (str (.getRequestURI exchange)))
-      (let [f (File. ".")]
+      (let [uri (str (.getRequestURI exchange))
+            f (File. (str "." uri))]
         (.add (.getResponseHeaders exchange)
               "Content-Type"
               "text/html")
