@@ -66,7 +66,7 @@
 
 (defn read-bytes [file]
   (let [out    (byte-array (.length file))
-        stream (BufferedInputStream. (FileInputStream. file))]
+        stream (io/input-stream file)]
     (.read stream out 0 (alength out))
     out))
 
