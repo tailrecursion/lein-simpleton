@@ -106,6 +106,7 @@
     (.start)))
 
 (defn ^:no-project-needed simpleton
+  "Starts a simple webserver with the local directory as its root."
   [project & [port :as args]]
   (try
     (let [port (Integer/parseInt port)
