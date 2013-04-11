@@ -21,9 +21,7 @@
 (.addShutdownHook
  (Runtime/getRuntime)
  (Thread. (fn []
-            (println)
-            (println "Shutting down Simpleton...")
-            (deliver mailbox "Bye"))))
+            (deliver mailbox "Shutting down Simpleton..."))))
 
 (defn respond [exchange body]
   (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK 0)
@@ -116,6 +114,7 @@
         "hello" (new-server port "/" (default-handler message))
         "echo" (new-server port "/" (echo-handler))
         (new-server port "/" (fs-handler))))
+    (println)
     (println @mailbox)
     (catch NumberFormatException nfe
       (println "Malformed port" port)
