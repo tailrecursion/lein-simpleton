@@ -1,4 +1,4 @@
-(defproject lein-simpleton "1.0.1"
+(defproject lein-simpleton "1.0.2"
   :description "A simple Leiningen plugin for serving files in a local directory."
   :url "http://www.github.com/fogus/lein-simpleton"
   :license {:name "Eclipse Public License"
