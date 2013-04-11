@@ -6,12 +6,12 @@ A Leiningen plugin to serve files out of a local directory -- very similar to `p
 
 ### System-wide install
 
-Put `[lein-simpleton "1.0.1"]` into the `:plugins` vector of your
-`:user` profile, or if you are on Leiningen 1.x do `lein plugin install lein-simpleton 1.0.1`.
+Put `[lein-simpleton "1.0.2"]` into the `:plugins` vector of your
+`:user` profile, or if you are on Leiningen 1.x do `lein plugin install lein-simpleton 1.0.2`.
 
 ### Per-project install
 
-Put `[lein-simpleton "1.0.1"]` into the `:plugins` vector of your project.clj.
+Put `[lein-simpleton "1.0.2"]` into the `:plugins` vector of your project.clj.
 
 ### Running
 
