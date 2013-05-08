@@ -90,7 +90,9 @@
           (do (.add (.getResponseHeaders exchange)
                     "Content-Type"
                     (get mime-types "html"))
-              (respond exchange (html uri filenames)))
+              (if-let [idx (some #{"index.html" "index.htm"} filenames)]
+                (serve exchange (File. (str "." uri "/" idx)))
+                (respond exchange (html uri filenames))))
           (try
             (serve exchange f)
             (catch Exception e
