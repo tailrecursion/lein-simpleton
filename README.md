@@ -6,12 +6,12 @@ A Leiningen plugin to serve files out of a local directory -- very similar to `p
 
 ### System-wide install
 
-Put `[lein-simpleton "1.0.2"]` into the `:plugins` vector of your
-`:user` profile, or if you are on Leiningen 1.x do `lein plugin install lein-simpleton 1.0.2`.
+Put `[lein-simpleton "1.1.0"]` into the `:plugins` vector of your
+`:user` profile, or if you are on Leiningen 1.x do `lein plugin install lein-simpleton 1.1.0`.
 
 ### Per-project install
 
-Put `[lein-simpleton "1.0.2"]` into the `:plugins` vector of your project.clj.
+Put `[lein-simpleton "1.1.0"]` into the `:plugins` vector of your project.clj.
 
 ### Running
 
@@ -19,7 +19,7 @@ By default Simpleton provides a file-server in the directory where it's run.  To
 
     $ lein simpleton 5000
 
-Navigate to <http://localhost:5000> and see a directory listing.  Click around to navigate directories and download (some) files.
+Navigate to <http://localhost:5000> and see a directory listing.  Click around to navigate directories and download (some) files.  If a directory contains a file named either `index.html` or `index.htm` then Simpleton will attempt to serve that automatically.
 
 #### Running the echo server
 
