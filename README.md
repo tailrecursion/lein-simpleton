@@ -41,8 +41,9 @@ Navigating to <http://localhost:5000> to see the message.
 
 Patches and pushes welcomed.  Please see the [lein-simpleton tickets page](https://github.com/fogus/lein-simpleton/issues) to see if there's something that you like added, or add it, hack and push away.
 
-## License
+License
+-------
 
-Copyright © 2013 Fogus
+Copyright (C) 2013 Fogus and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.
