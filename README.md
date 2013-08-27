@@ -21,6 +21,18 @@ By default Simpleton provides a file-server in the directory where it's run.  To
 
 Navigate to <http://localhost:5000> and see a directory listing.  Click around to navigate directories and download (some) files.  If a directory contains a file named either `index.html` or `index.htm` then Simpleton will attempt to serve that automatically.
 
+#### `:from`
+
+If you need to run Simpleton to serve files from a specific directory, then you can run something like the following:
+
+    lein simpleton 5000 file :from c:\Windows
+
+This is especially useful if you would like to serve a specific sub-directory in a Leiningen-managed project:
+
+    lein simpleton 5000 file :from src
+
+By default, the `lein simpleton 5000` will always serve a Leiningen project's root without using the `:from` declaration above.
+
 #### Running the echo server
 
 Simpleton can also run an echo server that reflects the incomming HTTP headers back as [EDN](https://github.com/edn-format/edn) data.
