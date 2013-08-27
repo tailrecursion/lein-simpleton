@@ -80,18 +80,19 @@
     (with-open [resp (.getResponseBody exchange)]
       (.write resp out 0 (alength out)))))
 
-(defn fs-handler []
+(defn fs-handler [base]
   (proxy [HttpHandler] []
     (handle [exchange]
       (let [uri (URLDecoder/decode (str (.getRequestURI exchange)))
-            f (File. (str "." uri))
+            base (or base ".")
+            f (File. (str base uri))
             filenames (listing f)]
         (if (.isDirectory f)
           (do (.add (.getResponseHeaders exchange)
                     "Content-Type"
                     (get mime-types "html"))
               (if-let [idx (some #{"index.html" "index.htm"} filenames)]
-                (serve exchange (File. (str "." uri "/" idx)))
+                (serve exchange (File. (str base uri "/" idx)))
                 (respond exchange (html uri filenames))))
           (try
             (serve exchange f)
@@ -107,15 +108,14 @@
 
 (defn ^:no-project-needed simpleton
   "Starts a simple webserver with the local directory as its root."
-  [project & [port :as args]]
+  [project & [port type _ base]]
   (try
-    (let [port (Integer/parseInt port)
-          type (second args)]
+    (let [port (Integer/parseInt port)]
       (println (str "Starting " (if type type "file") " server on port " port))
       (case type
         "hello" (new-server port "/" (default-handler message))
         "echo" (new-server port "/" (echo-handler))
-        (new-server port "/" (fs-handler))))
+        (new-server port "/" (fs-handler base))))
     (println)
     (println @mailbox)
     (catch NumberFormatException nfe
