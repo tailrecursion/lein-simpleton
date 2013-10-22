@@ -1,5 +1,6 @@
 (ns leiningen.simpleton
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string])
   (:import [java.io File]
           [com.sun.net.httpserver HttpHandler HttpExchange HttpServer]
           [java.net InetSocketAddress HttpURLConnection]
@@ -80,10 +81,13 @@
     (with-open [resp (.getResponseBody exchange)]
       (.write resp out 0 (alength out)))))
 
+(defn remove-url-params [uri]
+  (string/replace uri #"\?\S*$" ""))
+
 (defn fs-handler [base]
   (proxy [HttpHandler] []
     (handle [exchange]
-      (let [uri (URLDecoder/decode (str (.getRequestURI exchange)))
+      (let [uri (URLDecoder/decode (remove-url-params (str (.getRequestURI exchange))))
             base (or base ".")
             f (File. (str base uri))
             filenames (listing f)]
