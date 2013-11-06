@@ -8,6 +8,11 @@
                    BufferedInputStream FileInputStream]
           [java.net URLDecoder]))
 
+(def VERSION "1.3.0-SNAPSHOT")
+
+(defn ^:private show-version []
+  (println "lein-simpleton v" VERSION))
+
 (def message "If it was so, it might be; and if it were so, it would be; but as it isn't, it ain't.")
 (def mailbox (promise))
 
@@ -120,6 +125,7 @@
       (case type
         "hello" (new-server port "/" (default-handler message))
         "echo" (new-server port "/" (echo-handler))
+        "version" (show-version)
         (new-server port "/" (fs-handler base))))
     (println)
     (println @mailbox)
