@@ -11,7 +11,7 @@
 (def VERSION "1.3.0-SNAPSHOT")
 
 (defn ^:private show-version []
-  (println "lein-simpleton v" VERSION))
+  (println (str "lein-simpleton v" VERSION)))
 
 (def message "If it was so, it might be; and if it were so, it would be; but as it isn't, it ain't.")
 (def mailbox (promise))
@@ -119,17 +119,18 @@
 (defn ^:no-project-needed simpleton
   "Starts a simple webserver with the local directory as its root."
   [project & [port type _ base]]
-  (try
-    (let [port (Integer/parseInt port)]
-      (println (str "Starting " (if type type "file") " server on port " port))
-      (case type
-        "hello" (new-server port "/" (default-handler message))
-        "echo" (new-server port "/" (echo-handler))
-        "version" (show-version)
-        (new-server port "/" (fs-handler base))))
-    (println)
-    (println @mailbox)
-    (catch NumberFormatException nfe
-      (println "Malformed port" port)
-      (println "Usage: lein simpleton <port> [server-type]"))))
+  (if (= port "version")
+    (show-version)
+    (try
+      (let [port (Integer/parseInt port)]
+        (println (str "Starting " (if type type "file") " server on port " port))
+        (case type
+          "hello" (new-server port "/" (default-handler message))
+          "echo" (new-server port "/" (echo-handler))
+          (new-server port "/" (fs-handler base))))
+      (println)
+      (println @mailbox)
+      (catch NumberFormatException nfe
+        (println "Malformed port" port)
+        (println "Usage: lein simpleton <port> [server-type]")))))
 
