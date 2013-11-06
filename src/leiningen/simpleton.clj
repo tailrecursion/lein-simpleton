@@ -17,7 +17,8 @@
    "png"  "image/png"
    "html" "text/html"
    "htm"  "text/html"
-   "css"  "text/css"})
+   "css"  "text/css"
+   "js"   "text/javascript"})
 
 (.addShutdownHook
  (Runtime/getRuntime)
