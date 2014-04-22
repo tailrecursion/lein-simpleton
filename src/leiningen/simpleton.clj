@@ -30,11 +30,14 @@
  (Thread. (fn []
             (deliver mailbox "Shutting down Simpleton..."))))
 
-(defn respond [exchange body]
-  (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK 0)
-  (doto (.getResponseBody exchange)
-    (.write (.getBytes body))
-    (.close)))
+(defn respond
+  ([exchange body]
+     (respond exchange body HttpURLConnection/HTTP_OK))
+  ([exchange body code]
+      (.sendResponseHeaders exchange code 0)
+      (doto (.getResponseBody exchange)
+        (.write (.getBytes body))
+        (.close))))
 
 (defn default-handler
   [txt]
@@ -106,8 +109,10 @@
                 (respond exchange (html uri filenames))))
           (try
             (serve exchange f)
+            (catch java.io.FileNotFoundException e
+              (respond exchange (.getMessage e) HttpURLConnection/HTTP_NOT_FOUND))
             (catch Exception e
-              (println (.getMessage e)))))))))
+              (respond exchange (.getMessage e) HttpURLConnection/HTTP_INTERNAL_ERROR))))))))
 
 (defn new-server
   [port path handler]
