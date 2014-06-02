@@ -6,7 +6,9 @@
           [java.net InetSocketAddress HttpURLConnection]
           [java.io IOException FilterOutputStream
                    BufferedInputStream FileInputStream]
-          [java.net URLDecoder]))
+          [java.net URLDecoder]
+          [java.util Date TimeZone Locale]
+          java.text.SimpleDateFormat))
 
 (def VERSION "1.3.0-SNAPSHOT")
 
@@ -84,15 +86,22 @@
           (.write to b 0 read)
           (recur b))))))
 
+(def http-date-format (doto (SimpleDateFormat. "EEE, dd MMM yyyy HH:mm:ss z"
+                                               Locale/US)
+                        (.setTimeZone (TimeZone/getTimeZone "GMT"))))
+
 (defn serve [exchange file]
   (let [ext (get-extension (.getName file))
         body-served (not= (.getRequestMethod exchange) "HEAD")
-        last-modified (.lastModified file)]
+        length (.length file)
+        last-modified (Date. (.lastModified file))]
     (doto (.getResponseHeaders exchange)
-      (.add "Content-Type" (get mime-types ext "text/plain")))
+      (.add "Content-Type" (get mime-types ext "text/plain"))
+      (.add "Content-Length" (str length))
+      (.add "Last-Modified" (.format http-date-format last-modified)))
 
     (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK
-                          (if body-served (.length file) -1))
+                          (if body-served length -1))
     (when body-served
       (pipe :from file :to (.getResponseBody exchange)))))
 
