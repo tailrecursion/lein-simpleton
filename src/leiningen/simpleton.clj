@@ -75,11 +75,14 @@
 (defn get-extension [filename]
   (.substring filename (+ 1 (.lastIndexOf filename "."))))
 
-(defn read-bytes [file]
-  (let [out    (byte-array (.length file))
-        stream (io/input-stream file)]
-    (.read stream out 0 (alength out))
-    out))
+(defn pipe [& {:keys [from to]}]
+  (with-open [from (io/input-stream from)
+              to (io/output-stream to)]
+    (loop [b (byte-array 1024)]
+      (let [read (.read from b)]
+        (when-not (= read -1)
+          (.write to b 0 read)
+          (recur b))))))
 
 (defn serve [exchange file]
   (let [ext (get-extension (.getName file))
@@ -90,9 +93,8 @@
 
     (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK
                           (if body-served (.length file) -1))
-    (when-let [out (and body-served (read-bytes file))]
-      (with-open [resp (.getResponseBody exchange)]
-        (.write resp out 0 (alength out))))))
+    (when body-served
+      (pipe :from file :to (.getResponseBody exchange)))))
 
 (defn remove-url-params [uri]
   (string/replace uri #"\?\S*$" ""))
