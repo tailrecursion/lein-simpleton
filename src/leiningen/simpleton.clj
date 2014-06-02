@@ -82,13 +82,17 @@
     out))
 
 (defn serve [exchange file]
-  (let [out (read-bytes file)
-        ext (get-extension (.getName file))]
-    (.add (.getResponseHeaders exchange)
-          "Content-Type" (get mime-types ext "text/plain"))
-    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))
-    (with-open [resp (.getResponseBody exchange)]
-      (.write resp out 0 (alength out)))))
+  (let [ext (get-extension (.getName file))
+        body-served (not= (.getRequestMethod exchange) "HEAD")
+        last-modified (.lastModified file)]
+    (doto (.getResponseHeaders exchange)
+      (.add "Content-Type" (get mime-types ext "text/plain")))
+
+    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK
+                          (if body-served (.length file) -1))
+    (when-let [out (and body-served (read-bytes file))]
+      (with-open [resp (.getResponseBody exchange)]
+        (.write resp out 0 (alength out))))))
 
 (defn remove-url-params [uri]
   (string/replace uri #"\?\S*$" ""))
