@@ -6,7 +6,9 @@
           [java.net InetSocketAddress HttpURLConnection]
           [java.io IOException FilterOutputStream
                    BufferedInputStream FileInputStream]
-          [java.net URLDecoder]))
+          [java.net URLDecoder]
+          [java.util Date TimeZone Locale]
+          java.text.SimpleDateFormat))
 
 (def VERSION "1.3.0-SNAPSHOT")
 
@@ -75,20 +77,33 @@
 (defn get-extension [filename]
   (.substring filename (+ 1 (.lastIndexOf filename "."))))
 
-(defn read-bytes [file]
-  (let [out    (byte-array (.length file))
-        stream (io/input-stream file)]
-    (.read stream out 0 (alength out))
-    out))
+(defn pipe [& {:keys [from to]}]
+  (with-open [from (io/input-stream from)
+              to (io/output-stream to)]
+    (loop [b (byte-array 1024)]
+      (let [read (.read from b)]
+        (when-not (= read -1)
+          (.write to b 0 read)
+          (recur b))))))
+
+(def http-date-format (doto (SimpleDateFormat. "EEE, dd MMM yyyy HH:mm:ss z"
+                                               Locale/US)
+                        (.setTimeZone (TimeZone/getTimeZone "GMT"))))
 
 (defn serve [exchange file]
-  (let [out (read-bytes file)
-        ext (get-extension (.getName file))]
-    (.add (.getResponseHeaders exchange)
-          "Content-Type" (get mime-types ext "text/plain"))
-    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK (alength out))
-    (with-open [resp (.getResponseBody exchange)]
-      (.write resp out 0 (alength out)))))
+  (let [ext (get-extension (.getName file))
+        body-served (not= (.getRequestMethod exchange) "HEAD")
+        length (.length file)
+        last-modified (Date. (.lastModified file))]
+    (doto (.getResponseHeaders exchange)
+      (.add "Content-Type" (get mime-types ext "text/plain"))
+      (.add "Content-Length" (str length))
+      (.add "Last-Modified" (.format http-date-format last-modified)))
+
+    (.sendResponseHeaders exchange HttpURLConnection/HTTP_OK
+                          (if body-served length -1))
+    (when body-served
+      (pipe :from file :to (.getResponseBody exchange)))))
 
 (defn remove-url-params [uri]
   (string/replace uri #"\?\S*$" ""))
