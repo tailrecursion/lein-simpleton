@@ -138,19 +138,21 @@
 
 (defn ^:no-project-needed simpleton
   "Starts a simple webserver with the local directory as its root."
-  [project & [port type _ base]]
+  [project & [port type from-path base]]
   (if (= port "version")
     (show-version)
     (try
       (let [port (Integer/parseInt port)]
-        (println (str "Starting " (if type type "file") " server on port " port))
+        (if-not (= ":from" type)
+          (println (str "Starting " (if type type "file") " server on port " port))
+          (println (str "Starting file server on port " port " at " from-path)))
         (case type
           "hello" (new-server port "/" (default-handler message))
           "echo" (new-server port "/" (echo-handler))
+          ":from" (new-server port "/" (fs-handler from-path))
           (new-server port "/" (fs-handler base))))
       (println)
       (println @mailbox)
       (catch NumberFormatException nfe
         (println "Malformed port" port)
         (println "Usage: lein simpleton <port> [server-type]")))))
-
